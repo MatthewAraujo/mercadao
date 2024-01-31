@@ -2,13 +2,15 @@
 import Link from "next/link";
 import { Shop } from "@/components/shop";
 import { useLoja } from "@/context/useLoja";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 export default function Home() {
   const router = useRouter();
-  const { product } = useLoja();
-  if(localStorage.getItem('id') === null){
+  const { product, cart } = useLoja();
+  if (localStorage.getItem('id') === null) {
     router.push('/login')
   }
+
+
   return (
     <div>
       <div className="flex flex-col min-h-screen">
@@ -19,7 +21,8 @@ export default function Home() {
               Neighborhood Market
             </span>
           </Link>
-          <Link className="flex items-center justify-center" href="/carrinho">
+          <Link className="flex items-center justify-center relative" href="/carrinho">
+            <span className="absolute -top-4 right-0 w-fit p-1">{cart.length}</span>
             <ShoppingCartIcon className="h-6 w-6" />
           </Link>
         </header>
@@ -31,38 +34,44 @@ export default function Home() {
               </h2>
 
               <div className="grid gap-6 lg:grid-cols-3 lg:gap-12">
-                {product.map((product) => (
-                  <div key={product.id} className="grid">
-                    <div className="grid gap-1">
-                      <h3 className="text-lg font-bold">{product.name}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {product.brand}
-                      </p>
+                {product.map((i) => {
 
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {product.brand}
-                        </span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {product.weight}
-                        </span>
+                  return (
+                    <div key={i.id} className="grid">
+                      <div className="grid gap-1">
+                        <h3 className="text-lg font-bold">{i.name}</h3>
+                        <div className="flex justify-between flex-col">
+                        {
+                          i.brand !== null && i.brand !== 'NULL' ? (
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {i.brand}
+                          </span>
+                          ):
+                          (
+                           null
+                          )
+                        }
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {i.weight}KG
+                          </span>
 
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {product.stock}
-                        </span>
-                      </div>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            Unidades: {i.stock}
+                          </span>
+                        </div>
 
-                      <div className="flex  items-center justify-between">
-                        <span className="text-lg font-bold">
-                          ${product.price}
-                        </span>
+                        <div className="flex  items-center justify-between">
+                          <span className="text-lg font-bold">
+                            ${i.price}
+                          </span>
                           <Shop
-                            id={product.id}
-                            price={product.price} />
+                            id={i.id}
+                            price={i.price} />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </section>

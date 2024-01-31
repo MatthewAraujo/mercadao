@@ -1,29 +1,37 @@
 "use client"
-import { product, useLoja } from "@/context/useLoja"
+import { useLoja } from "@/context/useLoja"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
 
 export default function Carrinho() {
   const router = useRouter()
+  const { cart, product, handleResetCart } = useLoja()
+
+
   if (localStorage.getItem('id') === null) {
     router.push('/login')
   }
-  const { cart, product } = useLoja()
+  
   const totalItems = cart.reduce((acc, item) => {
     return acc + item.quantity * product[item.id - 1].price
   }, 0)
   const total = totalItems.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
+  
   async function sendData(data) {
-    const response = await fetch('http://localhost:3000/seu-endpoint', {
+    const response = await fetch('http://127.0.0.1:5000/carrinho', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
     }); 
-    return data;
+    
+    const result = await response.json();
+    return result;
   }
+
+
   async function handleSubmit(event) {
     event.preventDefault()
     const products = cart.map((item) => {
@@ -32,12 +40,16 @@ export default function Carrinho() {
         quantity: item.quantity
       }
     })
+
     const data = {
-      products
+      products,
+      id: localStorage.getItem('id')
     }
 
-    const response = await sendData(data)
-    console.log(response)
+    await sendData(data)
+    handleResetCart()
+    router.push('/')
+    
   }
   return (
     <div className="flex flex-col min-h-screen">

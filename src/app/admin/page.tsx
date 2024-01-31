@@ -2,20 +2,14 @@
 import { Link, StoreIcon, ShoppingCartIcon } from "lucide-react";
 import { useState } from "react";
 
-export default function Admin(){
+export default function Admin() {
+  const [state, setState] = useState(false)
   const [file, setFile] = useState(null)
   const handleFileChange = (event) => {
     setFile(event.target.files[0])
   }
 
-  async function sendData(data) {
-    const response = await fetch('http://localhost:3000/seu-endpoint', {
-      method: 'POST',
-      body: data,
-    }); 
-    return data;
-  }
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     const formData = new FormData()
     if (!file) {
@@ -24,9 +18,17 @@ export default function Admin(){
     }
 
     formData.append('file', file)
-    console.log(formData.get('file'))
-    const response = sendData(formData)
-    console.log(response)
+    fetch('http://127.0.0.1:5000/read', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data)
+        setState(true)
+      })
+      .catch(error => console.error(error));
+
   }
   return (
     <div>
@@ -50,13 +52,22 @@ export default function Admin(){
               </h2>
 
               <div className="grid gap-6 lg:grid-cols-3 lg:gap-12">
-                <form action="" className="flex  justify-between items-center">
+                <form action="" className="flex  justify-between items-center" encType="multipart/form-data">
                   <input type="file" name="file" id="file" className="inputfile" onChange={handleFileChange} />
                   <label htmlFor="file">Choose a file</label>
-                  <button  className="px-4 py-2 bg-gray-800 text-white rounded-md" onClick={handleSubmit}>Send</button>
+                  <button className="px-4 py-2 bg-gray-800 text-white rounded-md" onClick={handleSubmit}>Send</button>
                 </form>
               </div>
             </div>
+            {
+              state && (
+                <div className="container px-4 md:px-6">
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-8">
+                    Your csv was sent
+                  </h2>
+                </div>
+              )
+            }
           </section>
         </main>
       </div>

@@ -3,26 +3,24 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation'
+import { use, useEffect, useState } from "react"
 
 
 export default function Login() {
   const router = useRouter()
-  if(localStorage.getItem('id') !== null){
+  if (localStorage.getItem('id') !== null) {
     router.push('/')
   }
   async function postData(data: any) {
-    console.log(data)
-    // const response = await fetch('http://localhost:3000/seu-endpoint', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(data),
-    // });
-
-
-
-    return data;
+    const response = await fetch('http://127.0.0.1:5000/cliente', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    const result = await response.json();
+    return result;
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -66,13 +64,11 @@ export default function Login() {
 
     try {
       const response = await postData(data)
-      console.log(response)
-      localStorage.setItem("id", response.name)
+      localStorage.setItem("id", response)
       router.push("/")
     } catch (error) {
       console.log(error)
     }
-
   }
   return (
     <div className="mx-auto max-w-[350px] space-y-6">
